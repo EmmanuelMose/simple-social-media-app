@@ -1,0 +1,10 @@
+.user-dashboard {
+  display: flex;
+  min-height: 100vh;
+  background: #F8FAFC;
+}
+
+.user-content {
+  flex: 1;
+  padding: 32px;
+}

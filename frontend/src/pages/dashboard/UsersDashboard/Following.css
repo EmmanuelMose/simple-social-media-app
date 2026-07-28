@@ -1,0 +1,17 @@
+.following {
+  background: #FFFFFF;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.following h1 {
+  color: #1E3A8A;
+  margin-bottom: 20px;
+}
+
+.empty-msg {
+  text-align: center;
+  color: #6B7280;
+  padding: 40px 0;
+}

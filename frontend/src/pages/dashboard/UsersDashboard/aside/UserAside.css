@@ -1,0 +1,50 @@
+.user-aside {
+  width: 240px;
+  background: #FFFFFF;
+  border-right: 1px solid #E5E7EB;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  padding: 24px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.aside-header h2 {
+  color: #1E3A8A;
+  font-size: 1.2rem;
+  padding: 0 24px 20px 24px;
+  border-bottom: 1px solid #F3F4F6;
+  margin: 0;
+}
+
+.aside-nav {
+  flex: 1;
+  padding: 16px 12px;
+}
+
+.aside-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  color: #4B5563;
+  text-decoration: none;
+  transition: all 0.2s;
+  margin-bottom: 4px;
+}
+
+.aside-link:hover {
+  background: #F3F4F6;
+  color: #1E3A8A;
+}
+
+.aside-link.active {
+  background: #1E3A8A;
+  color: #FFFFFF;
+}
+
+.aside-link.active:hover {
+  background: #EA580C;
+}
