@@ -7,4 +7,32 @@
 
 .analytics h1 {
   color: #1E3A8A;
+  margin-bottom: 20px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+}
+
+.stat-card {
+  background: #F8FAFC;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.stat-card h3 {
+  color: #4B5563;
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.stat-card p {
+  color: #1E3A8A;
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
 }

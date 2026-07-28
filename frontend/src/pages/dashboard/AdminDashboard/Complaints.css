@@ -7,4 +7,105 @@
 
 .complaints h1 {
   color: #1E3A8A;
+  margin-bottom: 20px;
+}
+
+.complaints-table {
+  overflow-x: auto;
+}
+
+.complaints-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.complaints-table th, .complaints-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.complaints-table th {
+  background: #F8FAFC;
+  color: #1E3A8A;
+  font-weight: 600;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.status-pending {
+  background: #FEF3C7;
+  color: #D97706;
+}
+
+.status-resolved {
+  background: #D1FAE5;
+  color: #059669;
+}
+
+.status-dismissed {
+  background: #F3F4F6;
+  color: #6B7280;
+}
+
+.resolve-btn {
+  padding: 4px 12px;
+  background: #059669;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 6px;
+  transition: background 0.2s;
+}
+
+.resolve-btn:hover {
+  background: #047857;
+}
+
+.dismiss-btn {
+  padding: 4px 12px;
+  background: #6B7280;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.dismiss-btn:hover {
+  background: #4B5563;
+}
+
+.pagination {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.pagination button {
+  padding: 6px 16px;
+  border: 1px solid #D1D5DB;
+  background: #FFFFFF;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pagination button:hover:not(:disabled) {
+  background: #1E3A8A;
+  color: #FFFFFF;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
