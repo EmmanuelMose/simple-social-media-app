@@ -1,0 +1,10 @@
+.explore-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px 0;
+}
+
+.explore-page h1 {
+  color: #1E3A8A;
+  margin-bottom: 24px;
+}
