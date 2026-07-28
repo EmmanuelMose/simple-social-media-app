@@ -20,11 +20,11 @@ const PostList = ({
   onPostDeleted,
   token,
 }: PostListProps) => {
-  if (loading && posts.length === 0) {
+  if (loading && (!posts || posts.length === 0)) {
     return <LoadingSpinner />;
   }
 
-  if (posts.length === 0 && !loading) {
+  if (!posts || posts.length === 0) {
     return (
       <div className="post-list-empty">
         <p>No posts yet. Be the first to share!</p>

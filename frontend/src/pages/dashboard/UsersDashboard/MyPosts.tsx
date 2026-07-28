@@ -18,11 +18,12 @@ const MyPosts = () => {
     const fetchMyPosts = async () => {
       try {
         setLoading(true);
-        const res = await postsAPI.getFeed(token, 1, 100);
-        const myPosts = res.data.data.filter((p: any) => p.userId === user.userId);
+        const res = (await postsAPI.getFeed(token, 1, 100)) as unknown as any[];
+        const myPosts = res.filter((p: any) => p.userId === user.userId) as any[];
         setPosts(myPosts);
       } catch (err: any) {
-        setError(err.message);
+        const message = err instanceof Error ? err.message : String(err);
+        setError(message);
       } finally {
         setLoading(false);
       }

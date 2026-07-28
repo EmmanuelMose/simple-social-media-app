@@ -7,6 +7,7 @@ import './HomePage.css';
 const HomePage = () => {
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const token = localStorage.getItem('token') || '';
@@ -14,8 +15,10 @@ const HomePage = () => {
   const fetchPosts = async (reset = false) => {
     try {
       setLoading(true);
+      setError(null);
       const res = await postsAPI.getFeed(token, reset ? 1 : page, 10);
-      const newPosts = res.data.data;
+      const response = res as any;
+      const newPosts = Array.isArray(response) ? response : response?.data?.data || [];
       if (reset) {
         setPosts(newPosts);
         setPage(2);
@@ -24,8 +27,9 @@ const HomePage = () => {
         setPage(prev => prev + 1);
       }
       setHasMore(newPosts.length === 10);
-    } catch (error) {
-      console.error('Fetch feed error', error);
+    } catch (err: any) {
+      console.error('Fetch feed error', err);
+      setError(err.message || 'Failed to load feed');
     } finally {
       setLoading(false);
     }
@@ -48,6 +52,10 @@ const HomePage = () => {
   const handlePostDeleted = (postId: number) => {
     setPosts(prev => prev.filter(p => p.postId !== postId));
   };
+
+  if (error) {
+    return <div className="error-message">Error: {error}</div>;
+  }
 
   return (
     <div className="home-page">
