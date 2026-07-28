@@ -7,4 +7,26 @@
 
 .view-results h1 {
   color: #1E3A8A;
+  margin-bottom: 20px;
+}
+
+.results-table {
+  overflow-x: auto;
+}
+
+.results-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.results-table th, .results-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.results-table th {
+  background: #F8FAFC;
+  color: #1E3A8A;
+  font-weight: 600;
 }

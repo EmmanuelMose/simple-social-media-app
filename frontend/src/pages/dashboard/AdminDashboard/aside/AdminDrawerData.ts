@@ -1,9 +1,8 @@
-import { 
-  AiOutlineUser, 
-  AiOutlineBarChart, 
-  AiOutlineFileText, 
+import {
+  AiOutlineUser,
+  AiOutlineBarChart,
   AiOutlineMessage,
-  AiOutlineLogout 
+  AiOutlineLogout,
 } from 'react-icons/ai';
 
 export type DrawerItem = {
@@ -11,7 +10,6 @@ export type DrawerItem = {
   name: string;
   icon: React.ComponentType<{ size?: number }>;
   link: string;
-  requiresElectionClosed?: boolean;
 };
 
 export const adminDrawerData: DrawerItem[] = [
@@ -26,12 +24,6 @@ export const adminDrawerData: DrawerItem[] = [
     name: 'View Results',
     icon: AiOutlineBarChart,
     link: 'view-results',
-  },
-  {
-    id: 'reports',
-    name: 'Reports',
-    icon: AiOutlineFileText,
-    link: 'reports',
   },
   {
     id: 'analytics',
