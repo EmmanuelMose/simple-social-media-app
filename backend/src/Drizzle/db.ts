@@ -1,26 +1,19 @@
 import "dotenv/config";
-import { drizzle } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
+import { drizzle } from "drizzle-orm/neon-http";
+import { neon } from "@neondatabase/serverless";
 import * as schema from "./schema";
 
-// Create a PostgreSQL connection pool
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
-});
+const databaseUrl = process.env.DATABASE_URL;
 
-// Test connection
-pool.on("connect", () => {
-  console.log(" Connected to PostgreSQL");
-});
+if (!databaseUrl) {
+  throw new Error("DATABASE_URL is not defined.");
+}
 
-pool.on("error", (err) => {
-  console.error(" PostgreSQL connection error:", err);
-});
+const client = neon(databaseUrl);
 
-// Initialize Drizzle with the schema
-const db = drizzle(pool, { schema, logger: true });
+const db = drizzle(client, {
+  schema,
+  logger: true,
+});
 
 export default db;
