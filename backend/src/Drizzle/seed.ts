@@ -1,5 +1,5 @@
 import db from "./db";
-import { users, posts, comments, likes, followers } from "./schema";
+import { users, posts, comments, likes, followers, profileViews } from "./schema";
 import bcrypt from "bcryptjs";
 import { faker } from "@faker-js/faker";
 
@@ -7,6 +7,8 @@ async function seed() {
   try {
     console.log("Clearing existing data...");
 
+    // Delete in order of dependencies (child tables first)
+    await db.delete(profileViews);
     await db.delete(comments);
     await db.delete(likes);
     await db.delete(followers);
@@ -91,7 +93,6 @@ async function seed() {
     ];
 
     const createdUsers = await db.insert(users).values(userData).returning();
-
     console.log(`Created ${createdUsers.length} users.`);
 
     console.log("Creating posts...");
@@ -114,22 +115,38 @@ async function seed() {
       "Upgraded my gaming setup."
     ];
 
+    // Sample media URLs (you can replace with real Cloudinary URLs if needed)
+    const mediaUrls = [
+      "https://res.cloudinary.com/demo/image/upload/v1/sample.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v2/sample2.jpg",
+      "https://res.cloudinary.com/demo/video/upload/v1/sample.mp4",
+      "https://res.cloudinary.com/demo/image/upload/v3/sample3.jpg",
+      "https://res.cloudinary.com/demo/video/upload/v2/sample2.mp4",
+    ];
+
     const postData = [];
 
     for (let i = 0; i < 20; i++) {
-      const user =
-        createdUsers[Math.floor(Math.random() * createdUsers.length)];
+      const user = createdUsers[Math.floor(Math.random() * createdUsers.length)];
+      // 60% chance of having media
+      const hasMedia = Math.random() > 0.4;
+      let mediaUrl = null;
+      let mediaType: "image" | "video" | "none" = "none";
+      if (hasMedia) {
+        const randomMedia = mediaUrls[Math.floor(Math.random() * mediaUrls.length)];
+        mediaUrl = randomMedia;
+        mediaType = randomMedia.includes("video") ? "video" : "image";
+      }
 
       postData.push({
         userId: user.userId,
-        content:
-          postContents[Math.floor(Math.random() * postContents.length)],
-        image: Math.random() > 0.6 ? faker.image.url() : null,
+        content: postContents[Math.floor(Math.random() * postContents.length)],
+        mediaUrl,
+        mediaType,
       });
     }
 
     const createdPosts = await db.insert(posts).values(postData).returning();
-
     console.log(`Created ${createdPosts.length} posts.`);
 
     console.log("Creating comments...");
@@ -150,25 +167,16 @@ async function seed() {
     const commentData = [];
 
     for (let i = 0; i < 40; i++) {
-      const user =
-        createdUsers[Math.floor(Math.random() * createdUsers.length)];
-
-      const post =
-        createdPosts[Math.floor(Math.random() * createdPosts.length)];
-
+      const user = createdUsers[Math.floor(Math.random() * createdUsers.length)];
+      const post = createdPosts[Math.floor(Math.random() * createdPosts.length)];
       commentData.push({
         userId: user.userId,
         postId: post.postId,
-        content:
-          commentMessages[Math.floor(Math.random() * commentMessages.length)],
+        content: commentMessages[Math.floor(Math.random() * commentMessages.length)],
       });
     }
 
-    const createdComments = await db
-      .insert(comments)
-      .values(commentData)
-      .returning();
-
+    const createdComments = await db.insert(comments).values(commentData).returning();
     console.log(`Created ${createdComments.length} comments.`);
 
     console.log("Creating likes...");
@@ -176,12 +184,8 @@ async function seed() {
     const likeMap = new Map();
 
     for (let i = 0; i < 60; i++) {
-      const user =
-        createdUsers[Math.floor(Math.random() * createdUsers.length)];
-
-      const post =
-        createdPosts[Math.floor(Math.random() * createdPosts.length)];
-
+      const user = createdUsers[Math.floor(Math.random() * createdUsers.length)];
+      const post = createdPosts[Math.floor(Math.random() * createdPosts.length)];
       likeMap.set(`${user.userId}-${post.postId}`, {
         userId: user.userId,
         postId: post.postId,
@@ -201,11 +205,8 @@ async function seed() {
     const followerMap = new Map();
 
     for (let i = 0; i < 30; i++) {
-      const follower =
-        createdUsers[Math.floor(Math.random() * createdUsers.length)];
-
-      const following =
-        createdUsers[Math.floor(Math.random() * createdUsers.length)];
+      const follower = createdUsers[Math.floor(Math.random() * createdUsers.length)];
+      const following = createdUsers[Math.floor(Math.random() * createdUsers.length)];
 
       if (follower.userId !== following.userId) {
         followerMap.set(
@@ -226,8 +227,37 @@ async function seed() {
 
     console.log(`Created ${followerData.length} followers.`);
 
-    console.log("Database seeding completed successfully.");
+    // NEW: Create profile views
+    console.log("Creating profile views...");
 
+    const viewMap = new Map();
+
+    for (let i = 0; i < 20; i++) {
+      const viewer = createdUsers[Math.floor(Math.random() * createdUsers.length)];
+      const viewed = createdUsers[Math.floor(Math.random() * createdUsers.length)];
+
+      if (viewer.userId !== viewed.userId) {
+        // Avoid duplicate view per (viewer, viewed) for simplicity
+        const key = `${viewer.userId}-${viewed.userId}`;
+        if (!viewMap.has(key)) {
+          viewMap.set(key, {
+            viewerId: viewer.userId,
+            viewedUserId: viewed.userId,
+            viewedAt: faker.date.recent({ days: 30 }), // random date within last 30 days
+          });
+        }
+      }
+    }
+
+    const viewData = Array.from(viewMap.values());
+
+    if (viewData.length) {
+      await db.insert(profileViews).values(viewData);
+    }
+
+    console.log(`Created ${viewData.length} profile views.`);
+
+    console.log("Database seeding completed successfully.");
     process.exit(0);
   } catch (error) {
     console.error("Database seeding failed.");
