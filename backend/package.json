@@ -14,13 +14,13 @@
     "studio": "drizzle-kit studio"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^1.1.0",
+    "@neondatabase/serverless": "0.10.4",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.10.0",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
-    "drizzle-kit": "^0.19.13",
-    "drizzle-orm": "^0.28.6",
+    "drizzle-kit": "0.27.2",
+    "drizzle-orm": "0.36.4",
     "express": "^4.18.2",
     "express-rate-limit": "^7.1.5",
     "express-validator": "^7.0.1",

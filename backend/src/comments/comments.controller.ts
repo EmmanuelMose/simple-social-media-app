@@ -37,7 +37,16 @@ export class CommentsController {
 
   async getComments(req: Request, res: Response) {
     try {
-      const postId = parseInt(req.params.postId);
+      const postIdParam = Array.isArray(req.params.postId)
+        ? req.params.postId[0]
+        : req.params.postId;
+      const postId = parseInt(postIdParam as string, 10);
+      if (isNaN(postId)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid postId parameter",
+        });
+      }
       const comments = await commentsService.getCommentsByPost(postId);
 
       res.json({
@@ -54,7 +63,13 @@ export class CommentsController {
 
   async deleteComment(req: AuthRequest, res: Response) {
     try {
-      const commentId = parseInt(req.params.commentId);
+      const commentIdParam = Array.isArray(req.params.commentId)
+        ? req.params.commentId[0]
+        : req.params.commentId;
+      const commentId = parseInt(commentIdParam as string, 10);
+      if (isNaN(commentId)) {
+        return res.status(400).json({ success: false, message: "Invalid commentId parameter" });
+      }
       const userId = req.user!.userId;
 
       await commentsService.deleteComment(commentId, userId);

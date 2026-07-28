@@ -8,7 +8,10 @@ export class FollowersController {
   async followUser(req: AuthRequest, res: Response) {
     try {
       const followerId = req.user!.userId;
-      const followingId = parseInt(req.params.userId);
+      const followingId = parseInt(
+        Array.isArray(req.params.userId) ? req.params.userId[0] : req.params.userId,
+        10
+      );
 
       const follow = await followersService.followUser(followerId, followingId);
 
@@ -28,7 +31,10 @@ export class FollowersController {
   async unfollowUser(req: AuthRequest, res: Response) {
     try {
       const followerId = req.user!.userId;
-      const followingId = parseInt(req.params.userId);
+      const followingId = parseInt(
+        Array.isArray(req.params.userId) ? req.params.userId[0] : req.params.userId,
+        10
+      );
 
       await followersService.unfollowUser(followerId, followingId);
 
@@ -46,7 +52,10 @@ export class FollowersController {
 
   async getFollowers(req: Request, res: Response) {
     try {
-      const userId = parseInt(req.params.userId);
+      const userId = parseInt(
+        Array.isArray(req.params.userId) ? req.params.userId[0] : req.params.userId,
+        10
+      );
       const followers = await followersService.getFollowers(userId);
 
       res.json({
@@ -63,7 +72,10 @@ export class FollowersController {
 
   async getFollowing(req: Request, res: Response) {
     try {
-      const userId = parseInt(req.params.userId);
+      const userId = parseInt(
+        Array.isArray(req.params.userId) ? req.params.userId[0] : req.params.userId,
+        10
+      );
       const following = await followersService.getFollowing(userId);
 
       res.json({

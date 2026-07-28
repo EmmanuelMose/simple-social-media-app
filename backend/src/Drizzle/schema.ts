@@ -13,11 +13,10 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
-// Enums
 export const userRoleEnum = pgEnum("user_role", ["user", "admin"]);
 export const mediaTypeEnum = pgEnum("media_type", ["image", "video", "none"]);
+export const complaintStatusEnum = pgEnum("complaint_status", ["pending", "resolved", "dismissed"]);
 
-// Users Table (unchanged)
 export const users = pgTable(
   "users",
   {
@@ -39,7 +38,6 @@ export const users = pgTable(
   })
 );
 
-// Posts Table – added mediaUrl and mediaType
 export const posts = pgTable(
   "posts",
   {
@@ -59,7 +57,6 @@ export const posts = pgTable(
   })
 );
 
-// Comments Table (unchanged)
 export const comments = pgTable(
   "comments",
   {
@@ -80,7 +77,6 @@ export const comments = pgTable(
   })
 );
 
-// Likes Table (unchanged)
 export const likes = pgTable(
   "likes",
   {
@@ -100,7 +96,6 @@ export const likes = pgTable(
   })
 );
 
-// Followers Table (unchanged)
 export const followers = pgTable(
   "followers",
   {
@@ -114,13 +109,12 @@ export const followers = pgTable(
   },
   (table) => ({
     uniqueFollow: unique("unique_follow").on(table.followerId, table.followingId),
-    pk: primaryKey({ columns: [table.followerId, table.followingId] }),
+    pk: primaryKey(table.followerId, table.followingId),
     followerIdx: index("follower_idx").on(table.followerId),
     followingIdx: index("following_idx").on(table.followingId),
   })
 );
 
-// Profile Views Table
 export const profileViews = pgTable(
   "profile_views",
   {
@@ -138,12 +132,29 @@ export const profileViews = pgTable(
       table.viewerId,
       table.viewedUserId,
       table.viewedAt
-    ), // optional: avoid duplicates per day
+    ),
     viewedUserIdIdx: index("profile_viewed_user_idx").on(table.viewedUserId),
   })
 );
 
-// Relations (updated)
+export const complaints = pgTable(
+  "complaints",
+  {
+    complaintId: serial("complaint_id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.userId, { onDelete: "cascade" })
+      .notNull(),
+    complaint: text("complaint").notNull(),
+    status: complaintStatusEnum("status").default("pending"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    userIdIdx: index("complaint_user_id_idx").on(table.userId),
+    statusIdx: index("complaint_status_idx").on(table.status),
+  })
+);
+
 export const usersRelations = relations(users, ({ many }) => ({
   posts: many(posts),
   comments: many(comments),
@@ -151,6 +162,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   followers: many(followers, { relationName: "followers" }),
   following: many(followers, { relationName: "following" }),
   profileViews: many(profileViews, { relationName: "viewed" }),
+  complaints: many(complaints),
 }));
 
 export const postsRelations = relations(posts, ({ one, many }) => ({
@@ -208,6 +220,13 @@ export const profileViewsRelations = relations(profileViews, ({ one }) => ({
   }),
 }));
 
+export const complaintsRelations = relations(complaints, ({ one }) => ({
+  user: one(users, {
+    fields: [complaints.userId],
+    references: [users.userId],
+  }),
+}));
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Post = typeof posts.$inferSelect;
@@ -220,3 +239,5 @@ export type Follower = typeof followers.$inferSelect;
 export type NewFollower = typeof followers.$inferInsert;
 export type ProfileView = typeof profileViews.$inferSelect;
 export type NewProfileView = typeof profileViews.$inferInsert;
+export type Complaint = typeof complaints.$inferSelect;
+export type NewComplaint = typeof complaints.$inferInsert;

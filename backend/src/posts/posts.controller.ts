@@ -63,7 +63,9 @@ export class PostsController {
 
   async getPost(req: AuthRequest, res: Response) {
     try {
-      const postId = parseInt(req.params.postId);
+      const rawPostId = req.params.postId;
+      const postIdStr = Array.isArray(rawPostId) ? rawPostId[0] : rawPostId;
+      const postId = parseInt(postIdStr as string);
       const userId = req.user!.userId;
 
       const post = await postsService.getPostById(postId, userId);
@@ -82,7 +84,9 @@ export class PostsController {
 
   async deletePost(req: AuthRequest, res: Response) {
     try {
-      const postId = parseInt(req.params.postId);
+      const rawPostId = req.params.postId;
+      const postIdStr = Array.isArray(rawPostId) ? rawPostId[0] : rawPostId;
+      const postId = parseInt(postIdStr as string);
       const userId = req.user!.userId;
 
       await postsService.deletePost(postId, userId);

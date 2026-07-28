@@ -1,22 +1,28 @@
 import db from "./db";
-import { users, posts, comments, likes, followers, profileViews } from "./schema";
+import {
+  users,
+  posts,
+  comments,
+  likes,
+  followers,
+  profileViews,
+  complaints,
+} from "./schema";
 import bcrypt from "bcryptjs";
 import { faker } from "@faker-js/faker";
 
 async function seed() {
   try {
     console.log("Clearing existing data...");
-
-    // Delete in order of dependencies (child tables first)
     await db.delete(profileViews);
-    await db.delete(comments);
+    await db.delete(complaints);
     await db.delete(likes);
+    await db.delete(comments);
     await db.delete(followers);
     await db.delete(posts);
     await db.delete(users);
 
     console.log("Creating users...");
-
     const passwordHash = await bcrypt.hash("password123", 10);
 
     const userData = [
@@ -96,7 +102,6 @@ async function seed() {
     console.log(`Created ${createdUsers.length} users.`);
 
     console.log("Creating posts...");
-
     const postContents = [
       "Just had an amazing coffee today.",
       "Exploring a beautiful city.",
@@ -112,10 +117,9 @@ async function seed() {
       "Thanks for all the support.",
       "Learning a new language.",
       "Movie night.",
-      "Upgraded my gaming setup."
+      "Upgraded my gaming setup.",
     ];
 
-    // Sample media URLs (you can replace with real Cloudinary URLs if needed)
     const mediaUrls = [
       "https://res.cloudinary.com/demo/image/upload/v1/sample.jpg",
       "https://res.cloudinary.com/demo/image/upload/v2/sample2.jpg",
@@ -125,10 +129,8 @@ async function seed() {
     ];
 
     const postData = [];
-
     for (let i = 0; i < 20; i++) {
       const user = createdUsers[Math.floor(Math.random() * createdUsers.length)];
-      // 60% chance of having media
       const hasMedia = Math.random() > 0.4;
       let mediaUrl = null;
       let mediaType: "image" | "video" | "none" = "none";
@@ -137,7 +139,6 @@ async function seed() {
         mediaUrl = randomMedia;
         mediaType = randomMedia.includes("video") ? "video" : "image";
       }
-
       postData.push({
         userId: user.userId,
         content: postContents[Math.floor(Math.random() * postContents.length)],
@@ -150,7 +151,6 @@ async function seed() {
     console.log(`Created ${createdPosts.length} posts.`);
 
     console.log("Creating comments...");
-
     const commentMessages = [
       "Great post.",
       "Amazing.",
@@ -161,11 +161,10 @@ async function seed() {
       "Excellent.",
       "Nice work.",
       "Keep it up.",
-      "Looking forward to more."
+      "Looking forward to more.",
     ];
 
     const commentData = [];
-
     for (let i = 0; i < 40; i++) {
       const user = createdUsers[Math.floor(Math.random() * createdUsers.length)];
       const post = createdPosts[Math.floor(Math.random() * createdPosts.length)];
@@ -176,13 +175,11 @@ async function seed() {
       });
     }
 
-    const createdComments = await db.insert(comments).values(commentData).returning();
-    console.log(`Created ${createdComments.length} comments.`);
+    await db.insert(comments).values(commentData);
+    console.log(`Created ${commentData.length} comments.`);
 
     console.log("Creating likes...");
-
     const likeMap = new Map();
-
     for (let i = 0; i < 60; i++) {
       const user = createdUsers[Math.floor(Math.random() * createdUsers.length)];
       const post = createdPosts[Math.floor(Math.random() * createdPosts.length)];
@@ -191,71 +188,78 @@ async function seed() {
         postId: post.postId,
       });
     }
-
     const likeData = Array.from(likeMap.values());
-
     if (likeData.length) {
       await db.insert(likes).values(likeData);
     }
-
     console.log(`Created ${likeData.length} likes.`);
 
     console.log("Creating followers...");
-
     const followerMap = new Map();
-
     for (let i = 0; i < 30; i++) {
       const follower = createdUsers[Math.floor(Math.random() * createdUsers.length)];
       const following = createdUsers[Math.floor(Math.random() * createdUsers.length)];
-
       if (follower.userId !== following.userId) {
-        followerMap.set(
-          `${follower.userId}-${following.userId}`,
-          {
-            followerId: follower.userId,
-            followingId: following.userId,
-          }
-        );
+        followerMap.set(`${follower.userId}-${following.userId}`, {
+          followerId: follower.userId,
+          followingId: following.userId,
+        });
       }
     }
-
     const followerData = Array.from(followerMap.values());
-
     if (followerData.length) {
       await db.insert(followers).values(followerData);
     }
-
     console.log(`Created ${followerData.length} followers.`);
 
-    // NEW: Create profile views
     console.log("Creating profile views...");
-
     const viewMap = new Map();
-
     for (let i = 0; i < 20; i++) {
       const viewer = createdUsers[Math.floor(Math.random() * createdUsers.length)];
       const viewed = createdUsers[Math.floor(Math.random() * createdUsers.length)];
-
       if (viewer.userId !== viewed.userId) {
-        // Avoid duplicate view per (viewer, viewed) for simplicity
         const key = `${viewer.userId}-${viewed.userId}`;
         if (!viewMap.has(key)) {
           viewMap.set(key, {
             viewerId: viewer.userId,
             viewedUserId: viewed.userId,
-            viewedAt: faker.date.recent({ days: 30 }), // random date within last 30 days
+            viewedAt: faker.date.recent({ days: 30 }),
           });
         }
       }
     }
-
     const viewData = Array.from(viewMap.values());
-
     if (viewData.length) {
       await db.insert(profileViews).values(viewData);
     }
-
     console.log(`Created ${viewData.length} profile views.`);
+
+    console.log("Creating complaints...");
+    const complaintTexts = [
+      "This post contains inappropriate content.",
+      "User is spamming the feed.",
+      "Harassment in comments.",
+      "Fake account reporting.",
+      "Offensive profile picture.",
+      "Misleading information.",
+      "Abusive behavior in comments.",
+      "Post violates community guidelines.",
+    ];
+    const complaintStatuses = ["pending", "resolved", "dismissed"] as const;
+
+    const complaintData = [];
+    for (let i = 0; i < 8; i++) {
+      const user = createdUsers[Math.floor(Math.random() * createdUsers.length)];
+      complaintData.push({
+        userId: user.userId,
+        complaint: complaintTexts[Math.floor(Math.random() * complaintTexts.length)],
+        status: complaintStatuses[Math.floor(Math.random() * complaintStatuses.length)],
+      });
+    }
+    if (complaintData.length) {
+      await db.insert(complaints).values(complaintData);
+    }
+    console.log(`Created ${complaintData.length} complaints.`);
 
     console.log("Database seeding completed successfully.");
     process.exit(0);

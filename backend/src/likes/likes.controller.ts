@@ -8,7 +8,9 @@ export class LikesController {
   async likePost(req: AuthRequest, res: Response) {
     try {
       const userId = req.user!.userId;
-      const postId = parseInt(req.params.postId);
+      const postIdParam = req.params.postId;
+      const postIdStr = Array.isArray(postIdParam) ? postIdParam[0] : postIdParam;
+      const postId = parseInt(postIdStr);
 
       const like = await likesService.likePost(userId, postId);
 
@@ -28,7 +30,9 @@ export class LikesController {
   async unlikePost(req: AuthRequest, res: Response) {
     try {
       const userId = req.user!.userId;
-      const postId = parseInt(req.params.postId);
+      const postIdParam = req.params.postId;
+      const postIdStr = Array.isArray(postIdParam) ? postIdParam[0] : postIdParam;
+      const postId = parseInt(postIdStr);
 
       await likesService.unlikePost(userId, postId);
 
@@ -46,7 +50,9 @@ export class LikesController {
 
   async getPostLikes(req: Request, res: Response) {
     try {
-      const postId = parseInt(req.params.postId);
+      const postIdParam = req.params.postId;
+      const postIdStr = Array.isArray(postIdParam) ? postIdParam[0] : postIdParam;
+      const postId = parseInt(postIdStr);
       const likes = await likesService.getPostLikes(postId);
 
       res.json({

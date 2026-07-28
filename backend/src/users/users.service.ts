@@ -1,6 +1,7 @@
+import { sql } from "drizzle-orm";
 import db from "../Drizzle/db";
 import { users, posts, followers, profileViews } from "../Drizzle/schema";
-import { eq, and, or, sql, count } from "drizzle-orm";
+import { eq, and, or } from "drizzle-orm";
 
 export class UsersService {
   async getUserProfile(userId: number, currentUserId?: number) {
@@ -10,27 +11,23 @@ export class UsersService {
       .where(eq(users.userId, userId))
       .limit(1);
 
-    if (!user) {
-      throw new Error("User not found");
-    }
+    if (!user) throw new Error("User not found");
 
-    // Get counts...
     const followersCount = await db
-      .select({ count: count() })
+      .select({ count: sql<number>`count(*)` })
       .from(followers)
       .where(eq(followers.followingId, userId));
 
     const followingCount = await db
-      .select({ count: count() })
+      .select({ count: sql<number>`count(*)` })
       .from(followers)
       .where(eq(followers.followerId, userId));
 
     const postsCount = await db
-      .select({ count: count() })
+      .select({ count: sql<number>`count(*)` })
       .from(posts)
       .where(eq(posts.userId, userId));
 
-    // Check follow status
     let isFollowed = false;
     if (currentUserId && currentUserId !== userId) {
       const follow = await db
@@ -47,7 +44,6 @@ export class UsersService {
     }
 
     const { passwordHash, ...userWithoutPassword } = user;
-
     return {
       ...userWithoutPassword,
       followersCount: Number(followersCount[0]?.count || 0),
@@ -57,14 +53,9 @@ export class UsersService {
     };
   }
 
-  // Update profile unchanged
   async updateUserProfile(
     userId: number,
-    data: {
-      fullName?: string;
-      bio?: string | null;
-      avatar?: string | null;
-    }
+    data: { fullName?: string; bio?: string | null; avatar?: string | null }
   ) {
     const [updatedUser] = await db
       .update(users)
@@ -77,22 +68,15 @@ export class UsersService {
       .where(eq(users.userId, userId))
       .returning();
 
-    if (!updatedUser) {
-      throw new Error("User not found");
-    }
-
+    if (!updatedUser) throw new Error("User not found");
     const { passwordHash, ...userWithoutPassword } = updatedUser;
     return userWithoutPassword;
   }
 
-  // Search unchanged
   async searchUsers(query: string, currentUserId?: number) {
-    if (!query || query.length < 2) {
-      return [];
-    }
+    if (!query || query.length < 2) return [];
 
     const searchPattern = `%${query}%`;
-
     const results = await db
       .select()
       .from(users)
@@ -119,44 +103,26 @@ export class UsersService {
               )
             )
             .limit(1);
-
-          return {
-            ...user,
-            isFollowed: follow.length > 0,
-          };
+          return { ...user, isFollowed: follow.length > 0 };
         })
       );
-
       return usersWithFollowStatus;
     }
-
     return usersWithoutPassword;
   }
 
-  // NEW: Record profile view
   async recordProfileView(viewerId: number, viewedUserId: number) {
-    if (viewerId === viewedUserId) {
-      // Don't record self-views
-      return null;
-    }
-
-    // Optionally prevent duplicate views within a short time (e.g., 24h)
-    // For simplicity, we insert anyway. Could add check with unique constraint on (viewerId, viewedUserId, date)
+    if (viewerId === viewedUserId) return null;
     const [view] = await db
       .insert(profileViews)
-      .values({
-        viewerId,
-        viewedUserId,
-      })
+      .values({ viewerId, viewedUserId })
       .returning();
-
     return view;
   }
 
-  // Get profile view count for a user
   async getProfileViewCount(userId: number) {
     const result = await db
-      .select({ count: count() })
+      .select({ count: sql<number>`count(*)` })
       .from(profileViews)
       .where(eq(profileViews.viewedUserId, userId));
     return Number(result[0]?.count || 0);

@@ -14,6 +14,7 @@ import commentsRouter from "./comments/comments.router";
 import followersRouter from "./followers/followers.router";
 import likesRouter from "./likes/likes.router";
 import uploadRouter from "./upload/upload.router"; // NEW
+import adminRouter from "./admin/admin.router";
 
 const initializeApp = () => {
   const app = express();
@@ -63,7 +64,7 @@ const initializeApp = () => {
   app.use("/api/followers", followersRouter);
   app.use("/api/likes", likesRouter);
   app.use("/api/upload", uploadRouter); // NEW
-
+  app.use("/api/admin", adminRouter);
   // 404 handler
   app.use((_req, res) => {
     res.status(404).json({

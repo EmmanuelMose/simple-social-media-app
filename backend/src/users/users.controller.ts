@@ -7,7 +7,11 @@ const usersService = new UsersService();
 export class UsersController {
   async getProfile(req: Request, res: Response) {
     try {
-      const userId = parseInt(req.params.userId);
+      const rawUserId = Array.isArray(req.params.userId)
+        ? req.params.userId[0]
+        : req.params.userId;
+      const userId = rawUserId ? parseInt(rawUserId, 10) : NaN;
+      if (Number.isNaN(userId)) throw new Error("Invalid userId");
       const currentUserId = (req as AuthRequest).user?.userId;
 
       const profile = await usersService.getUserProfile(userId, currentUserId);
