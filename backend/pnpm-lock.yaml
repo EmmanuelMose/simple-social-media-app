@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@neondatabase/serverless':
+        specifier: ^1.1.0
+        version: 1.1.0
       bcryptjs:
         specifier: ^2.4.3
         version: 2.4.3
@@ -1318,8 +1321,7 @@ snapshots:
 
   '@faker-js/faker@8.4.1': {}
 
-  '@neondatabase/serverless@1.1.0':
-    optional: true
+  '@neondatabase/serverless@1.1.0': {}
 
   '@types/bcryptjs@2.4.6': {}
 
