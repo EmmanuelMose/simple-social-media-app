@@ -12,9 +12,20 @@ export class UsersController {
 
       const profile = await usersService.getUserProfile(userId, currentUserId);
 
+      // Record a profile view if viewer is authenticated and not the owner
+      if (currentUserId && currentUserId !== userId) {
+        await usersService.recordProfileView(currentUserId, userId);
+      }
+
+      // Also get view count (optional)
+      const viewCount = await usersService.getProfileViewCount(userId);
+
       res.json({
         success: true,
-        data: profile,
+        data: {
+          ...profile,
+          viewCount,
+        },
       });
     } catch (error: any) {
       res.status(404).json({
@@ -24,6 +35,7 @@ export class UsersController {
     }
   }
 
+  // updateProfile, searchUsers remain same
   async updateProfile(req: AuthRequest, res: Response) {
     try {
       const userId = req.user!.userId;

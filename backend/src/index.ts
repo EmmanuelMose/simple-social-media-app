@@ -13,15 +13,14 @@ import postsRouter from "./posts/posts.router";
 import commentsRouter from "./comments/comments.router";
 import followersRouter from "./followers/followers.router";
 import likesRouter from "./likes/likes.router";
+import uploadRouter from "./upload/upload.router"; // NEW
 
 const initializeApp = () => {
   const app = express();
 
-  // Middleware
   app.use(express.json());
   app.use(helmet());
 
-  // CORS configuration
   const allowedOrigins = [
     "http://localhost:5173",
     "http://localhost:3000",
@@ -41,15 +40,13 @@ const initializeApp = () => {
     })
   );
 
-  // Rate limiting
   const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // Limit each IP to 100 requests per windowMs
+    windowMs: 15 * 60 * 1000,
+    max: 100,
     message: "Too many requests from this IP, please try again later.",
   });
   app.use("/api", limiter);
 
-  // Health check
   app.get("/", (_req, res) => {
     res.json({
       status: "ok",
@@ -65,6 +62,7 @@ const initializeApp = () => {
   app.use("/api/comments", commentsRouter);
   app.use("/api/followers", followersRouter);
   app.use("/api/likes", likesRouter);
+  app.use("/api/upload", uploadRouter); // NEW
 
   // 404 handler
   app.use((_req, res) => {

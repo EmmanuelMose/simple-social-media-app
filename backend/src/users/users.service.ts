@@ -1,5 +1,5 @@
 import db from "../Drizzle/db";
-import { users, posts, followers } from "../Drizzle/schema";
+import { users, posts, followers, profileViews } from "../Drizzle/schema";
 import { eq, and, or, sql, count } from "drizzle-orm";
 
 export class UsersService {
@@ -14,25 +14,23 @@ export class UsersService {
       throw new Error("User not found");
     }
 
-    // Get followers count
+    // Get counts...
     const followersCount = await db
       .select({ count: count() })
       .from(followers)
       .where(eq(followers.followingId, userId));
 
-    // Get following count
     const followingCount = await db
       .select({ count: count() })
       .from(followers)
       .where(eq(followers.followerId, userId));
 
-    // Get posts count
     const postsCount = await db
       .select({ count: count() })
       .from(posts)
       .where(eq(posts.userId, userId));
 
-    // Check if current user is following this user
+    // Check follow status
     let isFollowed = false;
     if (currentUserId && currentUserId !== userId) {
       const follow = await db
@@ -45,7 +43,6 @@ export class UsersService {
           )
         )
         .limit(1);
-
       isFollowed = follow.length > 0;
     }
 
@@ -60,6 +57,7 @@ export class UsersService {
     };
   }
 
+  // Update profile unchanged
   async updateUserProfile(
     userId: number,
     data: {
@@ -87,6 +85,7 @@ export class UsersService {
     return userWithoutPassword;
   }
 
+  // Search unchanged
   async searchUsers(query: string, currentUserId?: number) {
     if (!query || query.length < 2) {
       return [];
@@ -132,5 +131,34 @@ export class UsersService {
     }
 
     return usersWithoutPassword;
+  }
+
+  // NEW: Record profile view
+  async recordProfileView(viewerId: number, viewedUserId: number) {
+    if (viewerId === viewedUserId) {
+      // Don't record self-views
+      return null;
+    }
+
+    // Optionally prevent duplicate views within a short time (e.g., 24h)
+    // For simplicity, we insert anyway. Could add check with unique constraint on (viewerId, viewedUserId, date)
+    const [view] = await db
+      .insert(profileViews)
+      .values({
+        viewerId,
+        viewedUserId,
+      })
+      .returning();
+
+    return view;
+  }
+
+  // Get profile view count for a user
+  async getProfileViewCount(userId: number) {
+    const result = await db
+      .select({ count: count() })
+      .from(profileViews)
+      .where(eq(profileViews.viewedUserId, userId));
+    return Number(result[0]?.count || 0);
   }
 }

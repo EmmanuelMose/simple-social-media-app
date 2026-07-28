@@ -3,12 +3,20 @@ import { posts, users, likes, comments, followers } from "../Drizzle/schema";
 import { eq, desc, and, count, inArray } from "drizzle-orm";
 
 export class PostsService {
-  async createPost(userId: number, data: { content: string; image?: string }) {
+  async createPost(
+    userId: number,
+    data: {
+      content: string;
+      mediaUrl?: string;
+      mediaType?: "image" | "video" | "none";
+    }
+  ) {
     const [newPost] = await db
       .insert(posts)
       .values({
         content: data.content,
-        image: data.image || null,
+        mediaUrl: data.mediaUrl || null,
+        mediaType: data.mediaType || "none",
         userId: userId,
       })
       .returning();
@@ -19,7 +27,6 @@ export class PostsService {
   async getFeed(userId: number, page: number = 1, limit: number = 10) {
     const offset = (page - 1) * limit;
 
-    // Get users that the current user follows
     const following = await db
       .select()
       .from(followers)
@@ -36,7 +43,6 @@ export class PostsService {
       .limit(limit)
       .offset(offset);
 
-    // Get post details with user info, likes, comments
     const postsWithDetails = await Promise.all(
       feedPosts.map(async (post) => {
         const [postUser] = await db
@@ -81,6 +87,7 @@ export class PostsService {
     return postsWithDetails;
   }
 
+  // getPostById, deletePost remain similar (just include media fields)
   async getPostById(postId: number, userId: number) {
     const [post] = await db
       .select()

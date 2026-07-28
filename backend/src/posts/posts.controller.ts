@@ -8,7 +8,7 @@ export class PostsController {
   async createPost(req: AuthRequest, res: Response) {
     try {
       const userId = req.user!.userId;
-      const { content, image } = req.body;
+      const { content, mediaUrl, mediaType } = req.body;
 
       if (!content) {
         return res.status(400).json({
@@ -17,7 +17,11 @@ export class PostsController {
         });
       }
 
-      const newPost = await postsService.createPost(userId, { content, image });
+      const newPost = await postsService.createPost(userId, {
+        content,
+        mediaUrl,
+        mediaType: mediaType || "none",
+      });
 
       res.status(201).json({
         success: true,
@@ -32,6 +36,7 @@ export class PostsController {
     }
   }
 
+  // getFeed, getPost, deletePost remain same
   async getFeed(req: AuthRequest, res: Response) {
     try {
       const userId = req.user!.userId;
