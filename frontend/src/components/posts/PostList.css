@@ -1,0 +1,37 @@
+.post-list {
+  margin-top: 16px;
+}
+
+.post-list-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6B7280;
+  background: #FFFFFF;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.post-list-load-more {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.load-more-btn {
+  padding: 10px 32px;
+  background: #1E3A8A;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.load-more-btn:hover {
+  background: #EA580C;
+}
+
+.post-list-loading-more {
+  text-align: center;
+  padding: 20px 0;
+}
