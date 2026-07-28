@@ -1,0 +1,61 @@
+.user-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  background: #FFFFFF;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  margin-bottom: 12px;
+}
+
+.user-card-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.user-card-info {
+  flex: 1;
+}
+
+.user-card-name {
+  font-weight: 600;
+  color: #111827;
+  text-decoration: none;
+  font-size: 1rem;
+}
+
+.user-card-name:hover {
+  color: #1E3A8A;
+}
+
+.user-card-username {
+  font-size: 0.85rem;
+  color: #6B7280;
+  display: block;
+}
+
+.user-card-bio {
+  margin: 4px 0 0 0;
+  font-size: 0.9rem;
+  color: #4B5563;
+}
+
+.user-card-follow {
+  padding: 6px 16px;
+  background: #1E3A8A;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 0.9rem;
+}
+
+.user-card-follow:hover {
+  background: #EA580C;
+}
